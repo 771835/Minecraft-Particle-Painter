@@ -177,12 +177,12 @@ class MainWindow(QMainWindow):
                 icon.addFile(str(self.particlesTexturesDirectory / (particle['textures'][0].split(":")[1]+".png")),
                               QSize(), QIcon.Mode.Normal, QIcon.State.Off)
             else:
-                logging.debug(f"The file \"{self.particlesJsonDirectory / (j['id'] + '.json')}\" does not exist.")
+                logging.debug(language_data.translate("main.MainWindow.logging.debug.not_exist",(self.particlesJsonDirectory / (j['id'] + '.json'),)))
             self.ui.SelectParticle.addItem(icon,"")
             self.ui.SelectParticle.setItemText(cnt, QCoreApplication.translate("MainWindow", i, None))
             cnt+=1
             
-        logging.info(f"Added {cnt} items to SelectParticle.")
+        logging.info(language_data.translate("main.MainWindow.logging.info.add_item",(cnt,)))
         # -----待办----- 部分链接的功能未实现 | 优先级高
         # 链接实际功能
         self.ui.new_N.triggered.connect(self.McParticleIO._new_file)
@@ -200,12 +200,13 @@ class MainWindow(QMainWindow):
     def closeEvent(self, event):
         if self.McParticleIO.data is not None:
             # 弹出提示框询问用户是否保存文件
-            reply = QMessageBox.question(self, '退出', '是否保存文件', 
+            reply = QMessageBox.question(self, language_data.translate("main.MainWindow.ui.text.quit"),
+                                         language_data.translate("main.MainWindow.ui.text.is_save_file_needed"), 
                                         QMessageBox.StandardButton.Yes | 
                                         QMessageBox.StandardButton.No | 
                                         QMessageBox.StandardButton.Cancel, 
                                         QMessageBox.StandardButton.No)
-            logging.debug(f"The reply is {reply}, and the event is {event}")
+            logging.debug(language_data.translate("main.MainWindow.logging.debug.reply",(reply,event)))
             if reply == QMessageBox.StandardButton.Yes:
                 # 保存文件
                 if self.McParticleIO.file_path is None:
@@ -214,7 +215,7 @@ class MainWindow(QMainWindow):
                 self.McParticleIO._close_file()
             # 检查 event 是否是 QEvent 类型
             if not isinstance(event, QEvent):
-                logging.warning(f"Unexpected event type: {type(event).__name__}")
+                logging.warning(language_data.translate("main.MainWindow.logging.warning.unexpected_event",(type(event).__name__),))
                 return
             # 判断用户选择的按钮
             if reply != QMessageBox.StandardButton.Cancel:
@@ -250,7 +251,7 @@ class MainWindow(QMainWindow):
                 particle_option_type=particle_option[0]
                 particle_option_introduction=particle_option[1]
                 if len(particle_option)!=2 and particle_option_type!='' and particle_option_introduction!='':
-                        logging.error(f"Error parsing particle option '{i}'. Expected format: 'type:name'.")
+                        logging.error(language_data.translate("main.MainWindow.logging.error.parsing",(i,)))
                         break
                 logging.debug(f"option_type: {particle_option_type}, option_name: {particle_option_introduction}")
                 if particle_option_type=="rgb" or particle_option_type=="rgba":
@@ -265,7 +266,7 @@ class MainWindow(QMainWindow):
                     color_button = QToolButton(self.ui.verticalLayoutWidget)
                     color_button.setStyleSheet(u"background-color: rgba(255, 255, 255,1);\n")
                     color_button.setAutoRaise(True)
-                    logging.debug(f"Connecting 'clicked' signal of color_button to open_setting_color_window.")
+                    # 将点击信号链接到open_setting_color_window函数
                     updateStyleSheet=lambda:color_button.setStyleSheet(f"background-color: rgba{particle_color_setting.get_color_value_rgba()};\n")
                     color_button.clicked.connect(lambda:(particle_color_setting.open_window(on_window_close=updateStyleSheet)))
                     self.ui.SpecialOption.insertWidget(insert_cnt,color_button)
@@ -275,18 +276,17 @@ class MainWindow(QMainWindow):
                         self.replacement_values.append(lambda:particle_color_setting.get_color_value_rgb_float())
                     else :
                         self.replacement_values.append(lambda:particle_color_setting.get_color_value_rgba_float())
-                    logging.info(f"add color in replacement_values")
                 elif particle_option_type=="pos":
                     pass
                 elif particle_option_type=="int" or particle_option_type=="float":
                     match = re.match(r"([a-zA-Z0-9]+)\[(.*)\]", particle_option_introduction)
                     if match is None:
-                        logging.error(f"Failed to parse range for particle option: {particle_option_introduction}")
+                        logging.error(language_data.translate("main.MainWindow.logging.error.failed_range",(particle_option_introduction,)))
                         break
                     particle_option_introduction=match.group(1)
                     # 将数值范围的字符串转换成列表
                     value_range = [float(num) for num in match.group(2).split(',')]
-                    logging.debug(f"The min value_range is {value_range[0]},and max value_range is {value_range[1]}")
+                    logging.debug(language_data.translate("main.MainWindow.logging.debug.print_range",(*value_range,)))
                     # 增加介绍文本
                     introduction_text = QLabel(self.ui.verticalLayoutWidget)
                     introduction_text.setText(particle_option_introduction)
@@ -304,7 +304,6 @@ class MainWindow(QMainWindow):
                     self.ui.SpecialOption.insertWidget(insert_cnt,valueSpinBox)
                     insert_cnt+=1
                     self.replacement_values.append(lambda:valueSpinBox.value())
-                    logging.info(f"add value in replacement_values")
                 elif particle_option_type=="snbt":
                     pass
                 elif particle_option_type=="block":
@@ -312,7 +311,7 @@ class MainWindow(QMainWindow):
                 elif particle_option_type=="item":
                     pass
                 else:
-                    logging.error(f"Unknown particle option type: {particle_option_type}")
+                    logging.error(language_data.translate("main.MainWindow.logging.error.unknown_type",(particle_option_type,)))
                     break
             # -----待办结束----- 
             # 显示特殊属性表单
@@ -330,7 +329,7 @@ class MainWindow(QMainWindow):
                                       argv=["--disableChat","--tracyNoImages","--disableMultiplayer","--quickPlaySingleplayer","particles"])
         mc.install_minecraft()
         mc.run_minecraft()
-        logging.info("The Minecraft program exited.")
+        logging.info(language_data.translate_no_cache("main.MainWindow.logging.info.minecraft_exit"))
     def record_particle(self, event: QMouseEvent):
         return
         # 获取选中的文本
@@ -368,10 +367,10 @@ if __name__ == "__main__":
     except RuntimeError as e:
         logging.error(e)
         exit_code=1
-    logging.debug(language_data.translate("main.top.logging.debug.exitcode",(exit_code,)))
+    logging.debug(language_data.translate_no_cache("main.top.logging.debug.exitcode",(exit_code,)))
     if exit_code != 0:
-        logging.error(language_data.translate("main.top.logging.error.exit",(exit_code,)))
+        logging.error(language_data.translate_no_cache("main.top.logging.error.exit",(exit_code,)))
     else:
-        logging.info(language_data.translate("main.top.logging.info.exit"))
+        logging.info(language_data.translate_no_cache("main.top.logging.info.exit"))
     
     sys.exit(exit_code)

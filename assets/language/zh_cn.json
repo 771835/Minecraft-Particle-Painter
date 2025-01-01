@@ -4,8 +4,19 @@
     "main.top.logging.info.exit":"程序已退出。",
     "main.top.logging.debug.exitcode":"退出码：{0}",
     "main.top.logging.error.exit":"程序异常退出，退出码：{0}",
+    "main.MainWindow.ui.text.quit":"退出",
+    "main.MainWindow.ui.text.is_save_file_needed":"关闭前是否需要保存文件？",
     "main.MainWindow.logging.info.init":"初始化窗口",
     "main.MainWindow.logging.info.init_completed":"主窗口初始化完成",
+    "main.MainWindow.logging.info.minecraft_exit":"MC窗口退出",
     "main.MainWindow.logging.info.close":"用户选择关闭窗口",
-    "main.MainWindow.logging.info.user_close":"主窗口关闭"
+    "main.MainWindow.logging.info.user_close":"主窗口关闭",
+    "main.MainWindow.logging.info.add_item":"向 SelectParticle 添加了 {0} 个选项。",
+    "main.MainWindow.logging.debug.reply":"用户按下了: {0} ,事件: {1}",
+    "main.MainWindow.logging.debug.not_exist":"文件 '{0}' 不存在。",
+    "main.MainWindow.logging.debug.print_range":"最小值为 {0}，最大值为 {1}",
+    "main.MainWindow.logging.warning.unexpected_event":"未知的事件：{0}",
+    "main.MainWindow.logging.error.failed_range":"解析粒子选项 '{0}' 时出错。",
+    "main.MainWindow.logging.error.parsing":"解析粒子选项 '{0}' 时出错。预期格式： 'type:name'。",
+    "main.MainWindow.logging.error.unknown_type":"未知的粒子选项: {0}"
 }

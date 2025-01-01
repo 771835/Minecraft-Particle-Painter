@@ -16,7 +16,7 @@
     },
     "Option":{
         "Block":"{block_state: {Name: ${block:BlockName} , Properties: ${snbt:BlockProperties}}}",
-        "Color":"{color: [ ${rgba:Color} ]",
+        "Color":"{color: [ ${rgba:Color} ]}",
         "DustColorTransition":"{from_color: [ ${rgb:FromColor} ] , to_color: [ ${rgb:ToColor} ] , scale: ${float:Scale[0.01,4.0]}}",
         "Dust":"{color: [ ${rgb:Color} ] , scale: ${float:Scale[0.01,4.0]}}",
         "Item":"{item: {id: ${item:Item} , components: ${snbt:Components}}}",
@@ -24,5 +24,15 @@
         "Shriek":"{delay: ${int:Delay[-2147483648,2147483647]}}",
         "Vibration":"{destination: {type: \"block\", pos: [ ${pos:Pos} ]}, arrival_in_ticks: ${int:ArrivalInTicks[-2147483648,2147483647]}}",
         "TargetColor":"{target:[ ${pos:Pos} ], color: [ ${rgba:Color} ] }"
+    },
+    "OldOption":{
+        "Block":"${block:BlockName} ${snbt:BlockProperties}",
+        "Color":"",
+        "DustColorTransition":"${rgb:FromColor} ${float:Scale[0.01,4.0]} ${rgb:ToColor}",
+        "Dust":"${rgb:Color} ${float:Scale[0.01,4.0]}",
+        "Item":"${item:Item}",
+        "SculkCharge":"${float:Roll[-2147483648,2147483647]}",
+        "Shriek":"${int:Delay[-2147483648,2147483647]}",
+        "Vibration":"${pos:Pos} ${int:ArrivalInTicks[-2147483648,2147483647]}"
     }
 }

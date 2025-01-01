@@ -19,6 +19,8 @@ unrequirements.txt
 ttf/
 tmp/
 
+# 排除panda3d的pyi文件，需要的自行用mypy生成
+panda3d
 #  排除自己
 #.gitignore
 

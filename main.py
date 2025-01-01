@@ -42,6 +42,7 @@ __version__ = config['version']
 language_data = language.JsonFileReader(str(Path(config["paths"]["languageDirectory"]) / (config['settings']['language'] + '.json')))
 language_data.read_json()
 
+
 if config["settings"]["showDebugInfo"]:
     level=logging.DEBUG
 else:
@@ -124,9 +125,20 @@ class SettingColorWindow(QWidget):
     def get_color_value_rgb(self):
         self.update_color_value()
         return self.red,self.green,self.blue
+    def to_qcolor(self):
+        self.update_color_value()
+        return QColor(self.red,self.green,self.blue,self.alpha)
+    def rgba_to_float(self,rgba_tuple:tuple):
+        return tuple(i / 255 for i in rgba_tuple)
+    def get_color_value_rgba_float(self):
+        self.update_color_value()
+        return self.rgba_to_float(self.get_color_value_rgba())
+    def get_color_value_rgb_float(self):
+        self.update_color_value()
+        return self.rgba_to_float(self.get_color_value_rgb())
 class MainWindow(QMainWindow):
     def __init__(self):
-        logging.info("Initialization MainWindow")
+        logging.info(language_data.translate("main.MainWindow.logging.info.init"))
         super().__init__()
         self.McParticleIO=mcpartlib.mcpartio.McParticleIO()
         self.ui=Ui_MainWindow()
@@ -153,6 +165,8 @@ class MainWindow(QMainWindow):
         except json.JSONDecodeError as e:
             logging.error(f"JSON decoding error in file {e.doc}. Error message: {e.msg}")
             raise RuntimeError(f"JSON decoding error in file {e.doc}.")
+        del self.particlesConfigJson
+        del self.specialParticlesConfigJson
         # 设置选择粒子框粒子列表
         cnt=0
         for i,j in self.particles_data.items():
@@ -182,7 +196,7 @@ class MainWindow(QMainWindow):
         hide_form(self.ui.SpecialOption)
         # 初始化变量
         self.replacement_values = []
-        logging.info("Initialization MainWindow completed.")
+        logging.info(language_data.translate("main.MainWindow.logging.info.init_completed"))
     def closeEvent(self, event):
         if self.McParticleIO.data is not None:
             # 弹出提示框询问用户是否保存文件
@@ -193,6 +207,10 @@ class MainWindow(QMainWindow):
                                         QMessageBox.StandardButton.No)
             logging.debug(f"The reply is {reply}, and the event is {event}")
             if reply == QMessageBox.StandardButton.Yes:
+                # 保存文件
+                if self.McParticleIO.file_path is None:
+                    # 如果文件路径为空，说明是新建的文件，需要另存为
+                    self.McParticleIO.save_file_as()
                 self.McParticleIO._close_file()
             # 检查 event 是否是 QEvent 类型
             if not isinstance(event, QEvent):
@@ -201,7 +219,8 @@ class MainWindow(QMainWindow):
             # 判断用户选择的按钮
             if reply != QMessageBox.StandardButton.Cancel:
                 # 用户没选择“取消”允许关闭窗口
-                logging.info("The window is closing.")
+                logging.info(language_data.translate("main.MainWindow.logging.info.user_close"))
+                logging.info(language_data.translate("main.MainWindow.logging.info.close"))
                 event.accept()  # 允许关闭窗口
             else:
                 # 用户选择了“取消”，不关闭窗口
@@ -253,9 +272,9 @@ class MainWindow(QMainWindow):
                     insert_cnt+=1
                     # 根据需求设置返回
                     if particle_option_type=="rgb":
-                        self.replacement_values.append(lambda:particle_color_setting.get_color_value_rgb())
+                        self.replacement_values.append(lambda:particle_color_setting.get_color_value_rgb_float())
                     else :
-                        self.replacement_values.append(lambda:particle_color_setting.get_color_value_rgba())
+                        self.replacement_values.append(lambda:particle_color_setting.get_color_value_rgba_float())
                     logging.info(f"add color in replacement_values")
                 elif particle_option_type=="pos":
                     pass
@@ -349,11 +368,10 @@ if __name__ == "__main__":
     except RuntimeError as e:
         logging.error(e)
         exit_code=1
-    logging.debug(f"Exit code: {exit_code}")
-    
+    logging.debug(language_data.translate("main.top.logging.debug.exitcode",(exit_code,)))
     if exit_code != 0:
-        logging.error(f"The program exited with an error, and the exit code is {exit_code}")
+        logging.error(language_data.translate("main.top.logging.error.exit",(exit_code,)))
     else:
-        logging.info("The program exited.")
+        logging.info(language_data.translate("main.top.logging.info.exit"))
     
     sys.exit(exit_code)

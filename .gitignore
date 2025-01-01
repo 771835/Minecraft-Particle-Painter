@@ -1,0 +1,24 @@
+# 排除python编译文件
+__pycache__/
+*.py[cod]
+*$py.class
+# 排除虚拟环境
+env/
+#  排除日志文件
+app.log
+# 排除mypy缓存文件
+.mypy_cache/
+stubs/
+
+# 排除其他文件
+PandaQt-main/
+.minecraft/
+.vs/
+计划.txt
+unrequirements.txt
+ttf/
+tmp/
+
+#  排除自己
+#.gitignore
+

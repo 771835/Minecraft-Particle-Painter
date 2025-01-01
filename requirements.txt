@@ -1,0 +1,10 @@
+# GUI
+pyside6
+PyOpenGL
+pywavefront
+# 逻辑
+numpy
+pillow
+PyYAML
+# Run minecraft
+minecraft-launcher-lib

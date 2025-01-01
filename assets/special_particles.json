@@ -1,0 +1,28 @@
+{
+    "Particle":{
+        "block":"Block",
+        "block_marker":"Block",
+        "falling_dust":"Block",
+        "dust_pillar":"Block",
+        "block_crumble":"Block",
+        "entity_effect":"Color",
+        "dust_color_transition":"DustColorTransition",
+        "dust":"Dust",
+        "item":"Item",
+        "sculk_charge":"SculkCharge",
+        "shriek":"Shriek",
+        "vibration":"Vibration",
+        "trail":"TargetColor"
+    },
+    "Option":{
+        "Block":"{block_state: {Name: ${block:BlockName} , Properties: ${snbt:BlockProperties}}}",
+        "Color":"{color: [ ${rgba:Color} ]",
+        "DustColorTransition":"{from_color: [ ${rgb:FromColor} ] , to_color: [ ${rgb:ToColor} ] , scale: ${float:Scale[0.01,4.0]}}",
+        "Dust":"{color: [ ${rgb:Color} ] , scale: ${float:Scale[0.01,4.0]}}",
+        "Item":"{item: {id: ${item:Item} , components: ${snbt:Components}}}",
+        "SculkCharge":"{roll: ${float:Roll[-2147483648,2147483647]}}",
+        "Shriek":"{delay: ${int:Delay[-2147483648,2147483647]}}",
+        "Vibration":"{destination: {type: \"block\", pos: [ ${pos:Pos} ]}, arrival_in_ticks: ${int:ArrivalInTicks[-2147483648,2147483647]}}",
+        "TargetColor":"{target:[ ${pos:Pos} ], color: [ ${rgba:Color} ] }"
+    }
+}

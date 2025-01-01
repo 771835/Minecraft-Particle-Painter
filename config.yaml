@@ -1,0 +1,35 @@
+version: 0.0.1
+settings:
+  debug: false
+  language: zh_cn
+  safeMode: true
+  showDebugInfo: false
+  recordinglog: false
+  logformat: "[%(levelname)s at %(filename)s %(asctime)s] %(message)s "
+  logfilename: "app.log"
+  loadOtherPlugins: true
+paths:
+  assetsDirectory: assets
+  languageDirectory: assets/language
+  objModelDirectory: assets/obj
+  particlesConfigJson: assets/particles.json
+  particlesJsonDirectory: assets/particles
+  particlesTexturesDirectory: assets/particle
+  specialParticlesConfigJson: assets/special_particles.json
+  pluginDirectory: plugins
+plugins:
+  - name: LoadPlugin
+    main: load_plugin.main
+    version: 0.0.1
+    type: load
+    description: This is a plugin to load other plugins.
+  - name: ParticlePlusPlus
+    main: particle_plus_plus.main
+    version: 0.0.1
+    type: plugin
+    description: This is a plugin to add more particles.
+  - name: PluginAPI
+    main: plugin_api.main
+    version: 1.0.0
+    tppe: library
+    description: This is a plugin to provide some APIs for other plugins.

@@ -2,6 +2,7 @@ import unittest
 from mcpartlib.mcpartio import McParticleIO, ToMCDatapack
 from mcpartlib.mcdataformat import Minecraft_Version
 
+
 class TestMcParticleIO(unittest.TestCase):
     def setUp(self):
         self.filepath = 'test.mcpd'
@@ -40,16 +41,19 @@ class TestToMCDatapack(unittest.TestCase):
     def test_get_particle_command(self):
         particle_data = {'type': 'particle', 'particle_id': 'flame', 'pos': (0, 0, 0), 'option': [1, 2, 3]}
         command = self.to_mc_datapack._get_particle_command(particle_data)
-        print(command)
-        particle_data = {'type': 'particle', 'particle_id': 'entity_effect', 'pos': (0, 0, 0), 'option': [(1, 2, 3, 4)]}
-        command = self.to_mc_datapack._get_particle_command(particle_data)
-        print(command)
         self.assertIsNotNone(command)
-
 
     def test_make_datapack(self):
         # This is a placeholder test as the method is not implemented
         self.assertIsNone(self.to_mc_datapack.make_datapack())
+
+    def test_make_one_function_file(self):
+        data = [{'type': 'particle', 'particle_id': 'flame', 'pos': (0, 0, 0), 'option': [1, 2, 3]}]
+        self.to_mc_datapack._make_one_function_file(data, 'test.mcfunction')
+        with open('test.mcfunction', 'r') as f:
+            content = f.read()
+        
+        self.assertIn('particle minecraft:flame', content)
 
 if __name__ == '__main__':
     unittest.main()

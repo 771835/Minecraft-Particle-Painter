@@ -1,4 +1,4 @@
-version: 0.0.1
+version: 0.0.2
 settings:
   debug: false
   language: zh_cn
@@ -20,12 +20,12 @@ paths:
 plugins:
   - name: LoadPlugin
     main: load_plugin.main
-    version: 0.0.1
+    version: 1.0.0
     type: load
     description: This is a plugin to load other plugins.
   - name: ParticlePlusPlus
     main: particle_plus_plus.main
-    version: 0.0.1
+    version: 1.0.0
     type: plugin
     description: This is a plugin to add more particles.
   - name: PluginAPI

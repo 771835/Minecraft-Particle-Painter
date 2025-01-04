@@ -7,6 +7,7 @@ import logging
 import json
 import threading
 from pathlib import Path
+import asyncio
 
 import numpy as np
 from PySide6.QtCore import Qt, QSize,QEvent,QCoreApplication,QPointF
@@ -167,6 +168,23 @@ class MainWindow(QMainWindow):
             raise RuntimeError(f"JSON decoding error in file {e.doc}.")
         del self.particlesConfigJson
         del self.specialParticlesConfigJson
+        # 设置选择粒子框粒子列表 增加启动速度 | 异步操作
+        asyncio.run(self.setSelectParticle())
+        # -----待办----- 部分链接的功能未实现 | 优先级高
+        # 链接实际功能
+        self.ui.new_N.triggered.connect(self.McParticleIO._new_file)
+        self.ui.open_O.triggered.connect(self.McParticleIO._open_file)
+        self.ui.close_C.triggered.connect(self.closeEvent)
+        self.ui.quit_Q.triggered.connect(self.close)
+        self.ui.preview_P.triggered.connect(lambda : threading.Thread(target=self.preview).start())
+        self.ui.SelectParticle.currentIndexChanged.connect(self.on_select_particle_change)
+        # -----待办结束----- 
+        # 隐藏特殊属性表单
+        hide_form(self.ui.SpecialOption)
+        # 初始化变量
+        self.replacement_values = []
+        logging.info(language_data.translate("main.MainWindow.logging.info.init_completed"))
+    async def setSelectParticle(self):
         # 设置选择粒子框粒子列表
         cnt=0
         for i,j in self.particles_data.items():
@@ -183,20 +201,6 @@ class MainWindow(QMainWindow):
             cnt+=1
             
         logging.info(language_data.translate("main.MainWindow.logging.info.add_item",(cnt,)))
-        # -----待办----- 部分链接的功能未实现 | 优先级高
-        # 链接实际功能
-        self.ui.new_N.triggered.connect(self.McParticleIO._new_file)
-        self.ui.open_O.triggered.connect(self.McParticleIO._open_file)
-        self.ui.close_C.triggered.connect(self.closeEvent)
-        self.ui.quit_Q.triggered.connect(self.close)
-        self.ui.preview_P.triggered.connect(lambda : threading.Thread(target=self.preview).start())
-        self.ui.SelectParticle.currentIndexChanged.connect(self.on_select_particle_change)
-        # -----待办结束----- 
-        # 隐藏特殊属性表单
-        hide_form(self.ui.SpecialOption)
-        # 初始化变量
-        self.replacement_values = []
-        logging.info(language_data.translate("main.MainWindow.logging.info.init_completed"))
     def closeEvent(self, event):
         if self.McParticleIO.data is not None:
             # 弹出提示框询问用户是否保存文件
@@ -209,7 +213,7 @@ class MainWindow(QMainWindow):
             logging.debug(language_data.translate("main.MainWindow.logging.debug.reply",(reply,event)))
             if reply == QMessageBox.StandardButton.Yes:
                 # 保存文件
-                if self.McParticleIO.file_path is None:
+                if self.McParticleIO.filepath is None:
                     # 如果文件路径为空，说明是新建的文件，需要另存为
                     self.McParticleIO.save_file_as()
                 self.McParticleIO._close_file()

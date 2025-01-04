@@ -6,7 +6,7 @@ import yaml
 import logging
 
 class YamlFileManager:
-    def __init__(self, file_path, encoding='utf-8',yaml_data={}):
+    def __init__(self, file_path, encoding='utf-8',yaml_data:dict|None=None):
         """
         初始化 JsonFileReader 实例。
 
@@ -14,31 +14,41 @@ class YamlFileManager:
         :param encoding: 文件的编码方式，默认为 utf-8
         :param yaml_data: 所读的数据，默认为空
         """
+        if not file_path:
+            raise ValueError("file_path cannot be empty")
         self.file_path = file_path
         self.encoding = encoding
-        self.yaml_data:dict=yaml_data
-        if not self.yaml_data: # 如果yaml_data为空，读取yaml文件
-            self.read_yaml()
-    def read_yaml(self):
-        """
-        读取 YAML 文件并返回解析后的数据
+        self.is_closed = False
+        self.yaml_data:dict=yaml_data or self._read_yaml()# 如果yaml_data为空，读取yaml文件
+        if not isinstance(self.yaml_data,dict):
+            raise ValueError("yaml_data must be a dict")
+        return
+    def _read_yaml(self):
+        """读取 YAML 文件并返回解析后的数据--内部api，可能在未来版本中修改，不建议外部调用(建议使用read函数)。
         :return: 解析后的数据
         """
+        if self.is_closed:
+            raise ValueError("read of closed file")
         try:
             with open(self.file_path, 'r', encoding=self.encoding) as file:
-                self.yaml_data = yaml.safe_load(file)
-            return self.yaml_data
+                data = yaml.safe_load(file)
+            return data
         except :
             logging.error(f"An error occurred while reading the file: {self.file_path}")
             raise
-    def write_yaml(self):
-        """写入 YAML 文件"""
-        if not self.yaml_data:
+    def _write_yaml(self,data:dict=None):
+        """ 将数据写入 YAML 文件--内部api，可能在未来版本中修改，不建议外部调用(建议使用save函数)。
+        :param data: 要写入的数据，默认为None,即写入yaml_data
+        :return: 写入成功返回True，否则返回False"""
+        if self.is_closed:
+            raise ValueError("write to closed file")
+        yaml_data=data or self.yaml_data
+        if not yaml_data:
             # 没有数据可写入文件
             return False
         try:
             with open(self.file_path, 'w', encoding=self.encoding) as file:
-                yaml.dump(self.yaml_data, file, allow_unicode=True)
+                yaml.dump(yaml_data, file, allow_unicode=True)
             return True
         except:
             logging.error(f"An error occurred while writing to the file: {self.file_path}")
@@ -82,6 +92,23 @@ class YamlFileManager:
         :return: 值
         """
         return self.yaml_data.get(key, default)
+    def save(self):
+        """保存数据"""
+        return self._write_yaml()
+    def read(self):
+        """读取数据"""
+        if self.yaml_data:
+            return self.yaml_data
+        return self._read_yaml()
+    def reload(self):
+        """重新加载数据"""
+        self.yaml_data = self._read_yaml()
+        return self.yaml_data
+    def close(self):
+        """关闭文件"""
+        self.save()
+        self.is_closed = True
+        return 
     def __str__ (self):
         """
         重写__str__方法，返回yaml_data
@@ -91,12 +118,12 @@ class YamlFileManager:
         """
         重写__getitem__方法，返回yaml_data[key]
         """
-        return self.yaml_data[key]
+        return self.get_value(key)
     def __setitem__(self, key, value):
         """
         重写__setitem__方法，yaml_data[key] = value
         """
-        self.yaml_data[key] = value
+        return self.set_value(key, value)
     def __iter__(self):
         """
         重写__iter__方法，返回yaml_data的迭代器
@@ -116,15 +143,12 @@ class YamlFileManager:
         """
         重写__enter__方法，返回self
         """
-        if not self.yaml_data: # 如果yaml_data为空，读取yaml文件
-            self.read_yaml()
         return self
     def __exit__(self, exc_type, exc_val, exc_tb):
         """
         重写__exit__方法，关闭文件
         """
-        self.write_yaml()
-        return True
+        return self.close()
     def __eq__(self, value: 'YamlFileManager'):
         """
         重写__eq__方法，判断yaml_data是否相等

@@ -21,7 +21,6 @@ import logging
 
 # 读取配置文件
 config = config_manager.YamlFileManager("config.yaml")
-config.read_yaml()
 
 class TextureRenderer:
     def __init__(self):

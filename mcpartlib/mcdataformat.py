@@ -4,7 +4,7 @@ from decimal import Decimal
 import numpy as np
 import math
 
-@total_ordering
+@total_ordering # 用于比较大小,只需要定义__eq__和__lt__方法
 class Minecraft_Version:
     def __init__(self,version: list='1.20.4'):
         # minecraft版本

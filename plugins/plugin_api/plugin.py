@@ -7,7 +7,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'
 from config_manager import YamlFileManager
 import builtins
 class Plugin:
-    def __init__(self):
+    def __init__(self,safeMode:bool=True,plugin_root='./'):
         self.plugin_name= "name"
         self.__type__ = "plugin"
         self.__version__ = "1.0.0"
@@ -17,7 +17,7 @@ class Plugin:
     def run(self):
         pass
 
-    def initialize_plugin(self):
+    def initialize(self):
         pass
     
     def exit_plugin(self):
@@ -53,7 +53,7 @@ class Plugin:
 def get_root_path() -> str:
     return os.path.abspath(os.path.join(os.path.dirname(__file__), '../../'))
 # 获取项目根目录
-def get_project_root() -> str:
+def get_project_root() -> str|None:
     current_dir = Path(__file__).resolve()
     while current_dir != current_dir.parent:  # 一直向上直到达到根目录
         if (current_dir / 'config.yaml').exists():
@@ -61,31 +61,40 @@ def get_project_root() -> str:
         current_dir = current_dir.parent
     return None
 # 获取安全模式
-def safe_mode() -> bool :
+def get_safe_mode() -> bool :
     mode=YamlFileManager(os.path.join(get_project_root(),"config.yaml"))
     return mode.get("settings",True).get("safeMode",True)
 
 class YamlManager(YamlFileManager):
-    def __init__(self, file_path):
-        super().__init__(file_path)
-        self.safeMode = safe_mode()
-    def write_yaml(self):
+    def __init__(self, file_path,yaml_data=None):
+        super().__init__(file_path,encoding='utf-8',yaml_data=yaml_data)
+        self.safeMode = get_safe_mode()
+        return
+    @property
+    def _write_yaml(self):
         if self.safeMode:
             raise PermissionError("Do not have permission to write file, because the safe mode is enabled.")
-        super().write_yaml()
+        super()._write_yaml()
+    @property
     def __exit__(self, exc_type, exc_val, exc_tb):
         if self.safeMode:
             raise PermissionError("Do not have permission to write file, because the safe mode is enabled.")
-        super().write_yaml()
-# 注入主程序
-class MainDecorator:
-    def __init__(self,func):
-        self.func = func
-    def __call__(self,*args,**kwargs):
-        if safe_mode():
-            raise PermissionError("Do not have permission to run the main function, because the safe mode is enabled.")
-        result=self.func(*args,**kwargs)
-        
-        return result
+        self._write_yaml()
+    @property
+    def save(self):
+        if self.safeMode:
+            raise PermissionError("Do not have permission to write file, because the safe mode is enabled.")
+        return super().save()
+    @property
+    def get_safeMode(self):
+        return self.safeMode
+    def __setattr__(self, name, value):
+        # 定义可被修改的属性
+        saft_name=['safeMode','yaml_data','file_path','encoding','is_closed']
+        if name in saft_name:
+            return super().__setattr__(name, value)
+        if self.safeMode:
+            raise PermissionError("Do not have permission to write file, because the safe mode is enabled.")
+        raise AttributeError("can't set attribute")
 def exit_plugin(code=0):
     sys.exit(code)

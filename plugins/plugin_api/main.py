@@ -8,4 +8,4 @@ class Run(plugin.Plugin):
         self.__author__ = "771835"
         self.__website__ = None
     def run(self):
-        pass
+        print("This is a plugin to provide some APIs for other plugins.")

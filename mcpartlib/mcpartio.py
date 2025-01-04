@@ -4,8 +4,13 @@ import pickle
 import os
 import json
 import re
+import shutil
 from pathlib import Path
 from .mcdataformat import Minecraft_Version
+# 因为config_manager位于上层目录，所以需要注意单独使用该模块使用时需要将config_manager复制到该目录下
+import config_manager
+
+
 class McParticleIO:
     """读取、写入、转换mcpd(Minecraft Particle Datapack)文件
     警告：以_开头的方法为内部方法，不建议直接调用,可能会在未来版本中删除或修改
@@ -168,14 +173,16 @@ class ToMCDatapack:
         self.author=author
         # 描述(仅在函数前注释中)
         self.description=description
+        # 函数文件的后缀
+        self.suffix='.mcfunction'
+
         if self.one_out_function_file:
             self.use_armor_stand=False
-            
-
+        
         if self.only_use_particle_command:
             self.use_armor_stand=False
             self.ooc=False
-        
+        # 粒子指令模式
         if self.minecraft_version>'1.20.4':
             # 1.20.5及以上版本,使用新的粒子指令
             
@@ -185,8 +192,10 @@ class ToMCDatapack:
             # ojang真的害人不浅,为什么要改粒子指令,
 
             self.command_mode='old'
-    
+        
+        self.config=config_manager.YamlFileManager('config.ymal')
     def _get_particle_command(self,data:dict):
+        """获取粒子指令"""
         def replace_match(match):
                 # 根据匹配顺序，逐个替换
                 # 通过 match.start() 获取匹配的位置
@@ -232,13 +241,16 @@ class ToMCDatapack:
         else:
             return False
     def _make_one_function_file(self,data:list,filepath:str='particle.mcfunction'):
+        """生成一个函数文件"""
+        if not filepath.endswith(self.suffix):
+            filepath+=self.suffix
         # 生成一个函数文件
         with open(filepath,'+wt',encoding=self.encoding) as f:
             for i in data:
                 f.write(self._get_particle_command(i)+'\n')
         return
-    def _make_function_file(self,data:dict):
-        
+    def _make_function_file(self,data:list):
+        """生成函数文件"""
         # 生成函数文件
         if self.one_out_function_file:
             # 生成一个函数文件
@@ -253,9 +265,7 @@ class ToMCDatapack:
             output_path=Path(os.path.abspath(self.output_path))
             os.mkdir(output_path/self.namespace)
             # 新版本的函数文件夹
-            os.mkdir(output_path/self.namespace/"function")
-            # 旧版本的函数文件夹
-            os.mkdir(output_path/self.namespace/"functions")
+            os.mkdir(output_path/"data"/self.namespace/"function")
             with open(output_path/"pack.mcmeta","wt+",encoding=self.encoding) as f:
                 f.write(f"""{
     "pack": {
@@ -264,8 +274,23 @@ class ToMCDatapack:
     }
 }"""
 )
-            
+            self._make_one_function_file(data,output_path/self.namespace/"functions"/"particle.mcfunction")
+            # 支持旧版本的函数文件夹
+            shutil.copytree(output_path/"data"/self.namespace/"function",output_path/"data"/self.namespace/"functions")
+            return
+    
     def make_datapack(self):
+        # 生成函数文件
+        self._make_function_file(data=self.data)
         if self.one_out_function_file:
-            # 生成一个函数文件
-            self._make_function_file(data=self.data)
+            return self.output_path
+        else:
+            # 生成tags文件,用于初始化函数文件
+            os.mkdir(self.output_path/"data")
+            with open(self.output_path/"data/minecraft/tags/functions/load.json","wt+",encoding=self.encoding) as f:
+                f.write(f"""{{"values": ["{self.namespace}:init"]}}""")
+            with open(self.output_path/"data/minecraft/tags/functions/tick.json","wt+",encoding=self.encoding) as f:
+                f.write(f"""{{"values": ["{self.namespace}:run"]}}""")
+            
+            shutil.copyfile(Path(self.config['paths']['assetsDirectory'])/"init.mcfunction",self.output_path/"data"/self.namespace/"functions"/"init.mcfunction")
+            shutil.copyfile(Path(self.config['paths']['assetsDirectory'])/"run.mcfunction",self.output_path/"data"/self.namespace/"functions"/"run.mcfunction")

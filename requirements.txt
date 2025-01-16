@@ -1,10 +1,11 @@
 # GUI
 pyside6
-PyOpenGL
+PyOpenGL == 3.1.9a2
+PyOpenGL_accelerate == 3.1.9a2
 pywavefront
 # 逻辑
 numpy
 pillow
 PyYAML
-# Run minecraft
+# minecraft
 minecraft-launcher-lib

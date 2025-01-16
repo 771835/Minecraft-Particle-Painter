@@ -2,15 +2,18 @@
 __pycache__/
 *.py[cod]
 *$py.class
+*.dll
 # 排除虚拟环境
 env/
 #  排除日志文件
 app.log
+logs/
 # 排除mypy缓存文件
 .mypy_cache/
 stubs/
 
 # 排除其他文件
+panda3d/
 PandaQt-main/
 .minecraft/
 .vs/
@@ -18,9 +21,17 @@ PandaQt-main/
 unrequirements.txt
 ttf/
 tmp/
+# 排除构建文件
+main.onefile-build/
+main.build/
+main.dist/
+dist/
+build/
+*.exe
 
-# 排除panda3d的pyi文件，需要的自行用mypy生成
-panda3d
+# 排除测试生成的文件
+test.mcdp
+
 #  排除自己
 #.gitignore
 

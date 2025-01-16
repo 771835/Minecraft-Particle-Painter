@@ -37,8 +37,8 @@ class TestJsonFileReader(unittest.TestCase):
     def test_get_lang(self):
         reader = JsonFileReader(self.test_file_path)
         reader.read_json()
-        self.assertEqual(reader.get_lang('greeting', ['World']), "Hello, World!")
-        self.assertEqual(reader.get_lang('farewell', ['Alice']), "Goodbye, Alice!")
+        self.assertEqual(reader.get_lang('greeting', ('World',)), "Hello, World!")
+        self.assertEqual(reader.get_lang('farewell', ('Alice',)), "Goodbye, Alice!")
         self.assertEqual(reader.get_lang('age'), 30)
         self.assertIsNone(reader.get_lang('nonexistent_key'))
         self.assertEqual(reader.get_lang('nonexistent_key', default='default'), 'default')

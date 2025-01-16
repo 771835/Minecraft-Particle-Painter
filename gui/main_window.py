@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
 
 ################################################################################
-## Form generated from reading UI file 'MinecraftParticleEditor.ui'
+## Form generated from reading UI file 'main_window.ui'
 ##
-## Created by: Qt User Interface Compiler version 6.8.0
+## Created by: Qt User Interface Compiler version 6.8.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
@@ -18,9 +18,9 @@ from PySide6.QtGui import (QAction, QBrush, QColor, QConicalGradient,
     QTransform)
 from PySide6.QtOpenGLWidgets import QOpenGLWidget
 from PySide6.QtWidgets import (QApplication, QComboBox, QFrame, QHBoxLayout,
-    QLabel, QMainWindow, QMenu, QMenuBar,
-    QSizePolicy, QSpacerItem, QStatusBar, QVBoxLayout,
-    QWidget)
+    QLabel, QLineEdit, QMainWindow, QMenu,
+    QMenuBar, QSizePolicy, QSpacerItem, QStatusBar,
+    QVBoxLayout, QWidget)
 
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
@@ -63,19 +63,50 @@ class Ui_MainWindow(object):
         self.sideBar.setObjectName(u"sideBar")
         self.sideBar.setFrameShape(QFrame.Shape.StyledPanel)
         self.sideBar.setFrameShadow(QFrame.Shadow.Raised)
-        self.SelectParticle = QComboBox(self.sideBar)
-        self.SelectParticle.setObjectName(u"SelectParticle")
-        self.SelectParticle.setGeometry(QRect(10, 30, 221, 21))
+        self.verticalLayout = QVBoxLayout(self.sideBar)
+        self.verticalLayout.setObjectName(u"verticalLayout")
         self.SelectParticleText = QLabel(self.sideBar)
         self.SelectParticleText.setObjectName(u"SelectParticleText")
-        self.SelectParticleText.setGeometry(QRect(10, 10, 81, 16))
-        self.verticalLayoutWidget = QWidget(self.sideBar)
-        self.verticalLayoutWidget.setObjectName(u"verticalLayoutWidget")
-        self.verticalLayoutWidget.setGeometry(QRect(10, 320, 211, 331))
-        self.SpecialOption = QVBoxLayout(self.verticalLayoutWidget)
+
+        self.verticalLayout.addWidget(self.SelectParticleText)
+
+        self.SelectParticle = QComboBox(self.sideBar)
+        self.SelectParticle.setObjectName(u"SelectParticle")
+
+        self.verticalLayout.addWidget(self.SelectParticle)
+
+        self.brushTypeText = QLabel(self.sideBar)
+        self.brushTypeText.setObjectName(u"brushTypeText")
+
+        self.verticalLayout.addWidget(self.brushTypeText)
+
+        self.comboBox = QComboBox(self.sideBar)
+        self.comboBox.setObjectName(u"comboBox")
+
+        self.verticalLayout.addWidget(self.comboBox)
+
+        self.gameVersion = QHBoxLayout()
+        self.gameVersion.setObjectName(u"gameVersion")
+        self.gameVersionText = QLabel(self.sideBar)
+        self.gameVersionText.setObjectName(u"gameVersionText")
+
+        self.gameVersion.addWidget(self.gameVersionText)
+
+        self.gameVersionEdit = QLineEdit(self.sideBar)
+        self.gameVersionEdit.setObjectName(u"gameVersionEdit")
+
+        self.gameVersion.addWidget(self.gameVersionEdit)
+
+
+        self.verticalLayout.addLayout(self.gameVersion)
+
+        self.verticalSpacer_2 = QSpacerItem(20, 40, QSizePolicy.Policy.Minimum, QSizePolicy.Policy.Expanding)
+
+        self.verticalLayout.addItem(self.verticalSpacer_2)
+
+        self.SpecialOption = QVBoxLayout()
         self.SpecialOption.setObjectName(u"SpecialOption")
-        self.SpecialOption.setContentsMargins(0, 0, 0, 0)
-        self.SpecialOptionText = QLabel(self.verticalLayoutWidget)
+        self.SpecialOptionText = QLabel(self.sideBar)
         self.SpecialOptionText.setObjectName(u"SpecialOptionText")
 
         self.SpecialOption.addWidget(self.SpecialOptionText)
@@ -85,6 +116,9 @@ class Ui_MainWindow(object):
         self.SpecialOption.addItem(self.verticalSpacer)
 
 
+        self.verticalLayout.addLayout(self.SpecialOption)
+
+
         self.horizontalLayout.addWidget(self.sideBar)
 
         self.horizontalLayout.setStretch(0, 720)
@@ -92,7 +126,7 @@ class Ui_MainWindow(object):
         MainWindow.setCentralWidget(self.centralwidget)
         self.menubar = QMenuBar(MainWindow)
         self.menubar.setObjectName(u"menubar")
-        self.menubar.setGeometry(QRect(0, 0, 959, 20))
+        self.menubar.setGeometry(QRect(0, 0, 959, 21))
         self.file = QMenu(self.menubar)
         self.file.setObjectName(u"file")
         self.edit = QMenu(self.menubar)
@@ -153,7 +187,10 @@ class Ui_MainWindow(object):
 #endif // QT_CONFIG(shortcut)
         self.sponsorSupportAuthorNekoGirl.setText(QCoreApplication.translate("MainWindow", u"\u8d5e\u52a9\u4f5c\u8005\u4e00\u53ea\u732b\u5a18~", None))
         self.giveAuthorGalgame.setText(QCoreApplication.translate("MainWindow", u"\u7ed9\u4f5c\u8005\u4e00\u4e9b???", None))
-        self.SelectParticleText.setText(QCoreApplication.translate("MainWindow", u"\u9009\u62e9\u7c92\u5b50\u6548\u679c", None))
+        self.SelectParticleText.setText(QCoreApplication.translate("MainWindow", u"\u9009\u62e9\u7c92\u5b50", None))
+        self.brushTypeText.setText(QCoreApplication.translate("MainWindow", u"\u7c92\u5b50\u5f62\u72b6", None))
+        self.gameVersionText.setText(QCoreApplication.translate("MainWindow", u"\u6e38\u620f\u7248\u672c", None))
+        self.gameVersionEdit.setText(QCoreApplication.translate("MainWindow", u"1.21.4", None))
         self.SpecialOptionText.setText(QCoreApplication.translate("MainWindow", u"\u7279\u6b8a\u5c5e\u6027", None))
         self.file.setTitle(QCoreApplication.translate("MainWindow", u"\u6587\u4ef6", None))
         self.edit.setTitle(QCoreApplication.translate("MainWindow", u"\u7f16\u8f91", None))

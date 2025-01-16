@@ -2,9 +2,9 @@
 import numpy as np
 from PIL import Image
 import os
-from .mcdataformat import Minecraft_Version
+from .mcdataformat import MinecraftVersion
 class Particle:
-    def __init__(self,Minecraft_version: Minecraft_Version=Minecraft_Version('1.20.4'),pos: list=[0,0,0]):
+    def __init__(self,Minecraft_version: MinecraftVersion=MinecraftVersion('1.20.4'),pos: list=[0,0,0]):
         self.Minecraft_version=Minecraft_version#minecraft版本
         self.pos=pos#3维坐标
     def image_to_particle(self,image_path:str,out_filepath:str,particle_spacing: float=0.1) :#图片转粒子

@@ -4,7 +4,9 @@
 """
 import yaml
 import logging
+import os
 
+__version__="v0.0.2"
 class YamlFileManager:
     def __init__(self, file_path, encoding='utf-8',yaml_data:dict|None=None):
         """
@@ -16,6 +18,8 @@ class YamlFileManager:
         """
         if not file_path:
             raise ValueError("file_path cannot be empty")
+        if not os.path.exists(file_path) and yaml_data is None:
+            raise FileExistsError("The file is not exists")
         self.file_path = file_path
         self.encoding = encoding
         self.is_closed = False
@@ -27,6 +31,8 @@ class YamlFileManager:
         """读取 YAML 文件并返回解析后的数据--内部api，可能在未来版本中修改，不建议外部调用(建议使用read函数)。
         :return: 解析后的数据
         """
+        if not os.path.exists(self.file_path):
+            raise FileExistsError("The file is not exists")
         if self.is_closed:
             raise ValueError("read of closed file")
         try:

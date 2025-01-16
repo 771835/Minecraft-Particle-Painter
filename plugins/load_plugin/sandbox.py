@@ -6,16 +6,12 @@ import multiprocessing
 import types
 import copy
 
-# 将项目的根目录添加到 sys.path 中
-sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '../../')))
+from plugins.plugin_api import plugin,lib
 
-from plugins.plugin_api import plugin
-#class SafeSandbox:
-#def __init__(self):
-safe_modules = {'plugins.plugin_api',"plugins"} # 允许导入的模块
+safe_modules = {'plugins.plugin_api',"plugins.plugin_api.lib","plugins.plugin_api.plugin"} # 允许导入的模块
 # 重写 import
 def custom_import(name, globals=None, locals=None, fromlist=(), level=0):
-    if name in safe_modules or not plugin.get_safe_mode():
+    if name in safe_modules or not lib.get_safe_mode():
         return __import__(name, globals, locals, fromlist, level)
     # 提示用户导入模块不被允许，或只能在顶级代码中导入模块
     raise ImportError(f"Importing module '{name}' is not allowed, or only allowed in top-level code.")
@@ -81,10 +77,11 @@ safe_globals = {
     'sys': _sys,      # 允许用户使用修改后的 sys 模块
 }
 
-def user_code_wrapper(module_code):
+def user_code_wrapper(module_code,builtins):
     """
     通过 exec 执行用户代码，限制其访问的内建函数和模块。
     """
+    safe_globals['__builtins__'].update(builtins)
     try:
         exec(module_code, safe_globals)  # 执行用户代码，限制其访问的内建函数
         # 获取用户代码中的 run 类
@@ -94,19 +91,20 @@ def user_code_wrapper(module_code):
             run_instance.run()
     except Exception as e:
         print(f"执行用户代码时发生异常: {e}")
+        raise
         sys.exit(1)  # 子进程执行失败，退出
     except SystemExit:
         print("用户代码调用了 sys.exit，但已被拦截。")
         sys.exit(1)  # 退出进程，避免 sys.exit 中断主进程
 
-def execute_code(module_code):
+def execute_code(module_code,builtins={}):
     """
     在子进程中执行用户代码
     """
-    process = multiprocessing.Process(target=user_code_wrapper, args=(module_code,))
+    process = multiprocessing.Process(target=user_code_wrapper, args=(module_code,builtins))
 
     process.start()
-    return
+    return process
     # 等待子进程结束，并设置超时机制
     process.join(timeout=10)
 

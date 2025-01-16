@@ -3,14 +3,15 @@ from functools import total_ordering
 from decimal import Decimal
 import numpy as np
 import math
+from dataclasses import dataclass, field
 
 @total_ordering # 用于比较大小,只需要定义__eq__和__lt__方法
-class Minecraft_Version:
+class MinecraftVersion:
     def __init__(self,version: list='1.20.4'):
         # minecraft版本
         self.version=version
         self.to_version(version)
-    def to_version(self,version: str) -> list:
+    def to_version(self,version: str|int|tuple|list|float|np.ndarray) -> list:
         if isinstance(version,list):# 若是为列表
             if len(version) != 3:
                 raise ValueError('version must be a list of 3 integers')
@@ -55,12 +56,12 @@ class Minecraft_Version:
     def __str__(self):
         return self.get_version()
     def __eq__(self,other):
-        if not isinstance(other,Minecraft_Version):
+        if not isinstance(other,MinecraftVersion):
             return self.version==self.to_version(other)
         return self.version==other.version
     def __lt__(self, other):
-        if not isinstance(other,Minecraft_Version):
-            other=Minecraft_Version(other)
+        if not isinstance(other,MinecraftVersion):
+            other=MinecraftVersion(other)
         if self.version[1]<other.version[1]:
             return True
         elif self.version[1]==other.version[1]:
@@ -69,4 +70,29 @@ class Minecraft_Version:
         return False
     def __call__(self, *args, **kwds):
         return self.get_version()
-    
+
+@dataclass(frozen=True)
+class McParticleData:
+    """
+    数据格式,欢迎根据此格式进行扩展:
+    {'type':'...','particle_id':'...','pos':(...),'option':[...],'type_option':{...}}
+    particle:粒子
+    circle:圆
+    image:图片
+    hexagram:六芒星
+    quadrate:正方形
+    line:线
+    custom:自定义
+    """
+    _type: str
+    _particle_id: str
+    _pos: tuple[int, int, int]
+    _option: list = field(default_factory=list)  # 使用 default_factory 来初始化一个空列表
+    _type_option: dict = field(default_factory=dict)  # 使用 default_factory 来初始化一个空字典
+
+    def get_data(self):
+        return {'type': self._type, 'particle_id': self._particle_id, 'pos': self._pos, 'option': self._option, 'type_option': self._type_option}
+    def __str__ (self):
+        return str({'type': self._type, 'particle_id': self._particle_id, 'pos': self._pos, 'option': self._option, 'type_option': self._type_option})
+    def __getitem__(self, key):
+        return {'type': self._type, 'particle_id': self._particle_id, 'pos': self._pos, 'option': self._option, 'type_option': self._type_option}.get(key)

@@ -5,31 +5,29 @@ import os
 import json
 import re
 import shutil
-from pathlib import Path
-from .mcdataformat import Minecraft_Version
-# 因为config_manager位于上层目录，所以需要注意单独使用该模块使用时需要将config_manager复制到该目录下
-import config_manager
 
+
+from pathlib import Path
+from .mcdataformat import MinecraftVersion,McParticleData
+import config_manager
+from . import mcpartmath
+# 版本
+__version__=1
+# 调试模式
+debug=False
+# 初始参数
+r_scale=1
 
 class McParticleIO:
     """读取、写入、转换mcpd(Minecraft Particle Datapack)文件
+
     警告：以_开头的方法为内部方法，不建议直接调用,可能会在未来版本中删除或修改
+    文件格式目前为pickle序列化的文件,未来可能有改动
     """
-    """
-    数据格式,欢迎根据此格式进行扩展:
-    [{'type':'...','particle_id':'...','pos':(...),'option':[...]},
-     ...
-    ]
-    particle:粒子
-    circle:圆
-    image:图片
-    hexagram:六芒星
-    quadrate:正方形
-    line:线
-    custom:自定义
     
-    """
-    def __init__(self,/,filepath:str|None=None,data=None):
+    def __init__(self,filepath:str,data=[dict|McParticleData,...],encoding:str|None=None):
+        if filepath is None:
+            raise ValueError('filepath and data cannot be None at the same time')
         self.filepath=filepath
         self.data=data
         #  保存上次的错误信息，以便分析
@@ -38,65 +36,99 @@ class McParticleIO:
         if self.filepath is not None:
             if not self.filepath.endswith(self.suffix):
                 self.filepath+=self.suffix
+        
+        if os.path.exists(self.filepath):
+            self.file=open(self.filepath, 'rb+',encoding=encoding)
+            self._open_file()
+        else:
+            self.file=open(self.filepath, 'wb+',encoding=encoding)
+            self._new_file()
+    def _write_data_file(self,data):
+        pickle.dump(data,self.file)
+        return
+        # 未使用的格式
+        import tempfile
+        import gzip
+        import struct
+        self.file.write(b"MCPD")
+        if __version__ <=255:
+            self.file.write(struct.pack("B",0x00))
+        self.file.write(struct.pack("B",__version__))
+        self.file.write(gzip.compress(pickle.dumps(data)))
+        print(gzip.compress(pickle.dumps(data)))
+        self.file.flush()
     def _open_file(self):
-        if self.filepath is None:
-            return False
         # 加载数据
-        with open(self.filepath, 'rb') as f:
-            self.data = pickle.load(f)
+        try:
+            self.data = pickle.load(self.file)
+        except EOFError as e:
+            self.err=e
+            self._new_file_as(self.filepath)
+            self._open_file()
         return self.data
-    def _new_file(self,filepath) -> None:
+    def _new_file(self) -> None:
         """新建文件
-
         :param filepath: 文件路径
         """
-        if filepath is None:
-            return False
-        if self.filepath is not None:
-            self._close_file()
-        self.filepath=filepath
-        return 
+        self.data = []
+        return self.data
     def _save_file(self) -> bool:
-        """保存文件"""
-        if self.data == None or self.filepath is None:
-            return False
-        # 保存数据到文件
+        """保存数据到文件"""
         try:
-            with open(self.filepath, 'wb') as f:
-                pickle.dump(self.data, f)
+            self._write_data_file(self.data)
         except Exception as e:
             self.err=e
             raise
         return True
     def _close_file(self):
+        """关闭文件"""
         self._save_file()
-        self.filepath=None
-        self.data=None
+        self.file.close()
         return
     def _write_file(self,data):
+        """写入数据到文件"""
         self.data=data
         return self._save_file()
     def _add_data(self,data):
-        if self.data is None:
+        """添加数据"""
+        if self.data is None:    
             self.data=[]
-        self.data.append(data)
-        return True
+        return self.data.append(data)
     def _remove_data(self,index):
+        """删除数据"""
         if self.data is None:
             return False
-        if index>=len(self.data):
+        if isinstance(index,int):
+            if index>=len(self.data):
+                return False
+            self.data.pop(index)
+            return True
+        elif isinstance(index,list):
+            for i in index:
+                if i in self.data:
+                    self.data.remove(i)
+            return True
+        elif isinstance(index,dict):
+            if i in self.data:
+                self.data.remove(i)
+                return True
             return False
-        self.data.pop(index)
-        return True
+        else:
+            return False
     def _clear_data(self):
-        self.data=None
+        self.data=[]
         return True
+    def _new_file_as(self,filepath:str):
+        """新建文件"""
+        self.close()
+        self.__init__(filepath=filepath)
+        return 
     def ToNumpy(self):
         """转换为numpy数组"""
         if self.data is None:
             return False
         return np.array(self.data)
-    def NumPyTo(self,data):
+    def NumPyTo(self,data:np.ndarray):
         """从numpy数组转换"""
         if data is None:
             return False
@@ -105,13 +137,10 @@ class McParticleIO:
     def save_file(self) -> bool:
         """保存文件"""
         return self._save_file()
-    def close_file(self):
+    def close(self):
         """保存并关闭文件"""
         return self._close_file()
-    def save_file_as(self,filepath) -> None:
-        """另存为"""
-        return self._new_file(filepath)
-    def read_file(self):
+    def read(self):
         """读取文件"""
         return self._open_file()
     def set_suffix(self,suffix):
@@ -132,18 +161,22 @@ class McParticleIO:
                 return False
             else:
                 if os.path.exists(self.filepath):
-                    self.read_file()
+                    self.read()
                 else:
                     self.err = FileNotFoundError("[Errno 2] No such file or directory:''")
                     return False
         return self.data
+    if debug:
+        def __setattr__(self, name, value):
+            print(f'__setattr__:{name}={value}')
+            return super().__setattr__(name, value)
 class ToMCDatapack:
     """mcpd(Minecraft Particle Datapack)文件转换为MCDatapack"""
     def __init__(self,data:McParticleIO,encoding:str='utf-8',output_path:str='particle.mcfunction',
                  use_armor_stand:bool=False,use_relative_coordinates:bool=True,
                  pos:tuple[int,int,int]=(0,0,0),only_particle_command:bool=True,
                  one_out_function_file:bool=True,ooc:bool=False,
-                 namespace:str='particle',minecraft_version:Minecraft_Version=Minecraft_Version('1.20.4'),
+                 namespace:str='particle',minecraft_version:MinecraftVersion=MinecraftVersion('1.20.4'),
                  author:str='MCDatapack',description:str='MCDatapack'):
         # 读取mcpd文件
         self.data=data.get_data()
@@ -193,9 +226,9 @@ class ToMCDatapack:
 
             self.command_mode='old'
         
-        self.config=config_manager.YamlFileManager('config.ymal')
-    def _get_particle_command(self,data:dict):
-        """获取粒子指令"""
+        self.config=config_manager.YamlFileManager('config.yaml')
+    def _get_one_particle_command(self,data:dict|McParticleData):
+        """获取单条粒子指令"""
         def replace_match(match):
                 # 根据匹配顺序，逐个替换
                 # 通过 match.start() 获取匹配的位置
@@ -213,7 +246,7 @@ class ToMCDatapack:
         special_particles=None
         specialParticlesJson='assets/special_particles.json'
         particle_id=data['particle_id']
-        pos=" ".join(map(str, data['pos']))
+        pos=" ".join(f"{num:.16f}" for num in data['pos'])
         if os.path.exists(specialParticlesJson):
             with open(specialParticlesJson, 'r', encoding=self.encoding) as file:
                 special_particles = json.load(file)
@@ -226,19 +259,20 @@ class ToMCDatapack:
                 if self.command_mode=='new':
                     command=special_particles["Option"][option]
                     result = re.sub(r"\${([^}]+)}", replace_match, command)
-                    return f'particle minecraft:{particle_id}{result} {pos} {pos} 0 0 force'
+                    return f'particle {particle_id}{result} {pos} {pos} 0 0 force'
                 elif self.command_mode=='old':
                     if particle_id=='entity_effect':
                         # 说明为什么该工具未支持对entity_effect粒子参数的支持(entity_effect出现于24w12a 1.20.5的快照版本)
                         print("Why aren't entity_effect particles supported?\nbecause they don't appear in the particle instructions before 1.20.4, but in the 1.20.5 snapshot")
                     command=special_particles["OldOption"][option]
                     result = re.sub(r"\${([^}]+)}", replace_match, command)
-                    return f'particle minecraft:{particle_id} {result} {pos} {pos} 0 0 force'
+                    return f'particle {particle_id} {result} {pos} {pos} 0 0 force'
                 else:
                     raise 
             else:
-                return f'particle minecraft:{particle_id} {pos} {pos} 0 0 force'
+                return f'particle {particle_id} {pos} {pos} 0 0 force'
         else:
+            print(2)
             return False
     def _make_one_function_file(self,data:list,filepath:str='particle.mcfunction'):
         """生成一个函数文件"""
@@ -246,8 +280,28 @@ class ToMCDatapack:
             filepath+=self.suffix
         # 生成一个函数文件
         with open(filepath,'+wt',encoding=self.encoding) as f:
+            # 生成作者声明
+            f.write(f"# -*- coding: {self.encoding} -*-\n")
+            f.write(f"""
+################################################################################
+# Build tools: Minecraft particle Painter 
+# Tools author: 771835
+# Particle author: {self.author}
+# Particle description: {self.description}
+# Original file name: {filepath}
+# The mcfunction version of Minecraft: {self.minecraft_version.get_version()}
+# Warning: Particles cannot be fully displayed? Please try executing the command "/gamerule maxCommandChainLength 2147483647" to increase the number of particles that can be generated at the same time.
+# If you encounter issues that cannot be resolved, please visit https://github.com/771835/Minecraft-Particle-Painter .
+################################################################################
+""")
             for i in data:
-                f.write(self._get_particle_command(i)+'\n')
+                if isinstance(i,McParticleData):
+                    i=i.get_data()
+                if i['type'] == 'particle':# 单个粒子
+                    f.write(self._get_one_particle_command(i)+'\n')
+                elif i['type'] == 'circle':# 圆
+                    mcpartmath.calculate_circle_points(i)
+            f.flush()
         return
     def _make_function_file(self,data:list):
         """生成函数文件"""

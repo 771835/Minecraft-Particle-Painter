@@ -1,6 +1,6 @@
 import unittest
 from mcpartlib.mcpartio import McParticleIO, ToMCDatapack
-from mcpartlib.mcdataformat import Minecraft_Version
+from mcpartlib.mcdataformat import MinecraftVersion
 
 
 class TestMcParticleIO(unittest.TestCase):
@@ -18,7 +18,7 @@ class TestMcParticleIO(unittest.TestCase):
     def test_read_file(self):
         self.mc_particle_io.save_file()
         self.mc_particle_io.data = None
-        self.assertEqual(self.mc_particle_io.read_file(), self.data)
+        self.assertEqual(self.mc_particle_io.read(), self.data)
 
     def test_set_suffix(self):
         self.assertTrue(self.mc_particle_io.set_suffix('.test'))
@@ -40,7 +40,7 @@ class TestToMCDatapack(unittest.TestCase):
 
     def test_get_particle_command(self):
         particle_data = {'type': 'particle', 'particle_id': 'flame', 'pos': (0, 0, 0), 'option': [1, 2, 3]}
-        command = self.to_mc_datapack._get_particle_command(particle_data)
+        command = self.to_mc_datapack._get_one_particle_command(particle_data)
         self.assertIsNotNone(command)
 
     def test_make_datapack(self):

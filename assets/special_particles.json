@@ -22,7 +22,7 @@
         "Item":"{item: {id: ${item:Item} , components: ${snbt:Components}}}",
         "SculkCharge":"{roll: ${float:Roll[-2147483648,2147483647]}}",
         "Shriek":"{delay: ${int:Delay[-2147483648,2147483647]}}",
-        "Vibration":"{destination: {type: \"block\", pos: [ ${pos:Pos} ]}, arrival_in_ticks: ${int:ArrivalInTicks[-2147483648,2147483647]}}",
+        "Vibration":"{destination: {type: \"block\", pos: [ ${pos:Pos} ]}, arrival_in_ticks: ${int:ArrivalInTicks[1,2147483647]}}",
         "TargetColor":"{target:[ ${pos:Pos} ], color: [ ${rgba:Color} ] }"
     },
     "OldOption":{

@@ -25,7 +25,7 @@ class McParticleIO:
     文件格式目前为pickle序列化的文件,未来可能有改动
     """
     
-    def __init__(self,filepath:str,data=[dict|McParticleData,...],encoding:str|None=None):
+    def __init__(self,filepath:str,data:list[dict|McParticleData]=[],encoding:str|None=None,merge_original_data=False ):
         if filepath is None:
             raise ValueError('filepath and data cannot be None at the same time')
         self.filepath=filepath
@@ -33,18 +33,32 @@ class McParticleIO:
         #  保存上次的错误信息，以便分析
         self.err=None
         self.suffix='.mcpd'
-        if self.filepath is not None:
-            if not self.filepath.endswith(self.suffix):
-                self.filepath+=self.suffix
+        if not self.filepath.endswith(self.suffix):
+            self.filepath+=self.suffix
         
         if os.path.exists(self.filepath):
             self.file=open(self.filepath, 'rb+',encoding=encoding)
-            self._open_file()
+            old_data=self._read_data_file(self.file.read())
+            if isinstance(old_data,list):
+                if merge_original_data :
+                    if self.data != []:
+                        self.data=old_data+self.data
+                    else:
+                        self.data=old_data
+                else:
+                    self.data=old_data
+            self.file=open(self.filepath, 'wb+',encoding=encoding)
+            self.save_file()
         else:
             self.file=open(self.filepath, 'wb+',encoding=encoding)
             self._new_file()
     def _write_data_file(self,data):
+        self.file.close()
+        self.file=open(self.filepath, 'wb+')
+        if data ==[] and debug:
+            raise
         pickle.dump(data,self.file)
+        self.file.flush()
         return
         # 未使用的格式
         import tempfile
@@ -57,20 +71,20 @@ class McParticleIO:
         self.file.write(gzip.compress(pickle.dumps(data)))
         print(gzip.compress(pickle.dumps(data)))
         self.file.flush()
+    def _read_data_file(self,data):
+        try:
+            return pickle.loads(data)
+        except EOFError as e:
+                self.err=e
+                return None
     def _open_file(self):
         # 加载数据
-        try:
-            self.data = pickle.load(self.file)
-        except EOFError as e:
-            self.err=e
-            self._new_file_as(self.filepath)
-            self._open_file()
+        self.data = self._read_data_file(self.file.read())
         return self.data
     def _new_file(self) -> None:
         """新建文件
         :param filepath: 文件路径
         """
-        self.data = []
         return self.data
     def _save_file(self) -> bool:
         """保存数据到文件"""
@@ -166,6 +180,8 @@ class McParticleIO:
                     self.err = FileNotFoundError("[Errno 2] No such file or directory:''")
                     return False
         return self.data
+    def set_data(self,data):
+        self.data=data
     if debug:
         def __setattr__(self, name, value):
             print(f'__setattr__:{name}={value}')
@@ -272,7 +288,6 @@ class ToMCDatapack:
             else:
                 return f'particle {particle_id} {pos} {pos} 0 0 force'
         else:
-            print(2)
             return False
     def _make_one_function_file(self,data:list,filepath:str='particle.mcfunction'):
         """生成一个函数文件"""
@@ -288,7 +303,7 @@ class ToMCDatapack:
 # Tools author: 771835
 # Particle author: {self.author}
 # Particle description: {self.description}
-# Original file name: {filepath}
+# Original file name: {os.path.basename(filepath)}
 # The mcfunction version of Minecraft: {self.minecraft_version.get_version()}
 # Warning: Particles cannot be fully displayed? Please try executing the command "/gamerule maxCommandChainLength 2147483647" to increase the number of particles that can be generated at the same time.
 # If you encounter issues that cannot be resolved, please visit https://github.com/771835/Minecraft-Particle-Painter .

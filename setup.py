@@ -4,8 +4,7 @@ import platform
 import subprocess
 import locale
 import zipfile
-import config_manager
-config=config_manager.YamlFileManager("config.yaml")
+
 install=False
 
 default_language='zh_cn'
@@ -185,36 +184,46 @@ def exit_(exit_code=1):
     print("language",config['settings']['language'])
     config.close()
     sys.exit(exit_code)
-if not (is_virtualenv() or is_conda_env() or is_pipenv_env()):
-    print("It is recommended to install the program in a virtual environment.")# 推荐在虚拟环境下安装该程序
-    install=input("Continue with the installation (Yes/No)").lower()# 继续安装(是/否)
-    if install == 'yes' or install == 'y' or install == '是' or install == '好' or install == '是的' or install == '好的' :
-        install=True
+if __name__ == '__main__':
+    if getattr(sys, 'frozen', False):
+        print("This is a Nuitka-compiled program")
     else:
-        install=False
-        exit_()
-        
-else:
-    install=True
-
-
-if check_requirements():
-    install=False
-    exit_()
-import run_minecraft
-mc=run_minecraft.RunMinecraft()
-minecraft_path=mc.get_version_path()
-if not minecraft_path:
-    print("A Java version of Minecraft is required, otherwise the software cannot be used. Do you want to install it? (Yes/No)")
-    install=input().lower()
-    if install == 'yes' or install == 'y':
-        install=True
-        mc.install_minecraft()
+        print("This is not a Nuitka-compiled program")
+    if not (is_virtualenv() or is_conda_env() or is_pipenv_env()):
+        print("It is recommended to install the program in a virtual environment.")# 推荐在虚拟环境下安装该程序
+        install=input("Continue with the installation (Yes/No)").lower()# 继续安装(是/否)
+        if install == 'yes' or install == 'y' or install == '是' or install == '好' or install == '是的' or install == '好的' :
+            install=True
+        else:
+            install=False
+            exit_()
     else:
+        install=True
+    if check_requirements():
+        print("To install the dependency library, please run: python -m pip install -r requirements.txt")
         install=False
-extract_folder_from_jar(os.path.abspath(os.path.join(mc.get_version_path(),mc.minecraft_version()+".jar")),
-                        config['paths']["particlesTexturesDirectory"],'assets/minecraft/textures/particle')
-extract_folder_from_jar(os.path.abspath(os.path.join(mc.get_version_path(),mc.minecraft_version()+".jar")),
-                        config['paths']["particlesJsonDirectory"],'assets/minecraft/particles')
+        sys.exit(1)
+    import run_minecraft
+    mc=run_minecraft.RunMinecraft()
+    minecraft_path=mc.get_version_path()
+    if not minecraft_path:
+        print("A Java version of Minecraft is required, otherwise the software cannot be used. Do you want to install it? (Yes/No)")
+        install=input().lower()
+        if install == 'yes' or install == 'y':
+            install=True
+            import threading,time
+            print_thread=threading.Thread(target=lambda:[[print('.',end=''),time.sleep(20)] for i in range(14)])
+            print_thread.start()
+            a=time.time()
+            mc.install_minecraft()
+            print('.\n',time.time()-a)
+        else:
+            install=False
+    import config_manager
+    config=config_manager.YamlFileManager("config.yaml")
+    extract_folder_from_jar(os.path.abspath(os.path.join(mc.get_version_path(),mc.minecraft_version()+".jar")),
+                            config['paths']["particlesTexturesDirectory"],'assets/minecraft/textures/particle')
+    extract_folder_from_jar(os.path.abspath(os.path.join(mc.get_version_path(),mc.minecraft_version()+".jar")),
+                            config['paths']["particlesJsonDirectory"],'assets/minecraft/particles')
 
-exit_(0)
+    exit_(0)

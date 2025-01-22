@@ -35,83 +35,107 @@
       <property name="frameShadow">
        <enum>QFrame::Shadow::Raised</enum>
       </property>
-      <layout class="QVBoxLayout" name="verticalLayout">
-       <item>
-        <widget class="QLabel" name="SelectParticleText">
-         <property name="text">
-          <string>选择粒子</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="SelectParticle"/>
-       </item>
-       <item>
-        <widget class="QLabel" name="brushTypeText">
-         <property name="text">
-          <string>粒子形状</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QComboBox" name="comboBox"/>
-       </item>
-       <item>
-        <layout class="QHBoxLayout" name="gameVersion">
-         <item>
-          <widget class="QLabel" name="gameVersionText">
-           <property name="text">
-            <string>游戏版本</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QLineEdit" name="gameVersionEdit">
-           <property name="text">
-            <string>1.21.4</string>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Orientation::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-       <item>
-        <layout class="QVBoxLayout" name="SpecialOption">
-         <item>
-          <widget class="QLabel" name="SpecialOptionText">
-           <property name="text">
-            <string>特殊属性</string>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <spacer name="verticalSpacer">
-           <property name="orientation">
-            <enum>Qt::Orientation::Vertical</enum>
-           </property>
-           <property name="sizeHint" stdset="0">
-            <size>
-             <width>20</width>
-             <height>40</height>
-            </size>
-           </property>
-          </spacer>
-         </item>
-        </layout>
-       </item>
-      </layout>
+      <widget class="QComboBox" name="SelectParticle">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>30</y>
+         <width>221</width>
+         <height>21</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="SelectParticleText">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>10</y>
+         <width>81</width>
+         <height>16</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>粒子类型</string>
+       </property>
+      </widget>
+      <widget class="QWidget" name="verticalLayoutWidget">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>320</y>
+         <width>211</width>
+         <height>331</height>
+        </rect>
+       </property>
+       <layout class="QVBoxLayout" name="SpecialOption">
+        <item>
+         <widget class="QLabel" name="SpecialOptionText">
+          <property name="text">
+           <string>特殊属性</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <spacer name="verticalSpacer">
+          <property name="orientation">
+           <enum>Qt::Orientation::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QLabel" name="SelectShapeText">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>60</y>
+         <width>71</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>粒子形状</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="SelectShape">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>60</y>
+         <width>151</width>
+         <height>21</height>
+        </rect>
+       </property>
+      </widget>
+      <widget class="QLabel" name="SelectVersionText">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>90</y>
+         <width>71</width>
+         <height>21</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>游戏版本</string>
+       </property>
+      </widget>
+      <widget class="QComboBox" name="SelectVersion">
+       <property name="geometry">
+        <rect>
+         <x>80</x>
+         <y>90</y>
+         <width>151</width>
+         <height>22</height>
+        </rect>
+       </property>
+      </widget>
      </widget>
     </item>
    </layout>
@@ -132,6 +156,7 @@
     <addaction name="new_N"/>
     <addaction name="open_O"/>
     <addaction name="save_S"/>
+    <addaction name="save_as_A"/>
     <addaction name="separator"/>
     <addaction name="close_C"/>
     <addaction name="quit_Q"/>
@@ -219,6 +244,29 @@
   <action name="giveAuthorGalgame">
    <property name="text">
     <string>给作者一些???</string>
+   </property>
+  </action>
+  <action name="actionmcfunction">
+   <property name="text">
+    <string>mcfunction</string>
+   </property>
+  </action>
+  <action name="actionmcpd">
+   <property name="text">
+    <string>mcpd</string>
+   </property>
+  </action>
+  <action name="actionpkl">
+   <property name="text">
+    <string>pkl</string>
+   </property>
+  </action>
+  <action name="save_as_A">
+   <property name="text">
+    <string>另存为(A)</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+A</string>
    </property>
   </action>
  </widget>

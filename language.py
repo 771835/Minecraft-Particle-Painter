@@ -20,7 +20,8 @@ class JsonFileReader:
         self.file_path = file_path
         self.encoding = encoding
         self.json_data={}
-    def read_json(self) :
+        self.read_json()
+    def read_json(self) -> (dict|None):
         """读取 JSON 文件并返回解析后的数据"""
         try:
             with open(self.file_path, 'r', encoding=self.encoding) as file:

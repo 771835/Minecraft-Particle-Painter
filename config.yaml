@@ -1,6 +1,7 @@
 paths:
   assetsDirectory: assets
   languageDirectory: assets/language
+  minecraftDirectory: .minecraft
   objModelDirectory: assets/obj
   particlesConfigJson: assets/particles.json
   particlesJsonDirectory: assets/particles
@@ -18,4 +19,4 @@ settings:
   recordinglog: false
   safeMode: true
   showDebugInfo: false
-version: 0.0.2
+version: b0.1.0

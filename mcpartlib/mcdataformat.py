@@ -1,8 +1,6 @@
 """对MC数据进行标准统一的处理，减少代码复杂度，"""
 from functools import total_ordering
-from decimal import Decimal
 import numpy as np
-import math
 from dataclasses import dataclass, field
 
 @total_ordering # 用于比较大小,只需要定义__eq__和__lt__方法

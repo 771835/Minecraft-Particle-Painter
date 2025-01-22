@@ -28,6 +28,8 @@ main.dist/
 dist/
 build/
 *.exe
+*.cmd
+*.bat
 
 # 排除测试生成的文件
 test.mcdp

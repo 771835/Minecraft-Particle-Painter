@@ -23,6 +23,7 @@ class RunMinecraft:
     def get_run_argv(self):
         options = minecraft_launcher_lib.utils.generate_test_options()
         minecraft_command = minecraft_launcher_lib.command.get_minecraft_command(self.minecraft_version(), self.minecraft_directory, options)
+        print(minecraft_command)
         return minecraft_command
     def run_minecraft(self):
         # 使用 Popen 执行命令并实时输出
